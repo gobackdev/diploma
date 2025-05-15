@@ -21,6 +21,7 @@ func main() {
 
 	r := gin.Default()
 	r.POST("/api/user/register", userHandler.Register)
+	r.POST("/api/user/login", userHandler.Login)
 
 	r.Run()
 }
