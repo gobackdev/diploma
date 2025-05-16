@@ -2,7 +2,7 @@ package order
 
 import (
 	"github.com/gin-gonic/gin"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 )
@@ -28,7 +28,7 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 		return
 	}
 
-	body, err := ioutil.ReadAll(c.Request.Body)
+	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
 		return
