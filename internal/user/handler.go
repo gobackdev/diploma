@@ -56,7 +56,13 @@ func (h *Handler) Register(c *gin.Context) {
 		return
 	}
 
-	token, err := GenerateToken(req.Login, h.jwtSecret)
+	user, err := h.repo.FindByLogin(req.Login)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "db error"})
+		return
+	}
+
+	token, err := GenerateToken(user.ID, req.Login, h.jwtSecret)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "token generation failed"})
 		return
@@ -92,7 +98,7 @@ func (h *Handler) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := GenerateToken(user.Login, h.jwtSecret)
+	token, err := GenerateToken(user.ID, user.Login, h.jwtSecret)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "token generation failed"})
 		return
