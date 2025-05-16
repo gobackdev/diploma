@@ -2,6 +2,7 @@ package main
 
 import (
 	"diploma/internal/config"
+	"diploma/internal/order"
 	"diploma/internal/user"
 	"diploma/pkg/storage/postgres"
 	"github.com/gin-gonic/gin"
@@ -18,10 +19,12 @@ func main() {
 
 	repo := storage
 	userHandler := user.NewHandler(repo, cfg.JWTSecret)
+	orderHandler := order.NewHandler(repo)
 
 	r := gin.Default()
 	r.POST("/api/user/register", userHandler.Register)
 	r.POST("/api/user/login", userHandler.Login)
+	r.POST("/api/user/orders", user.AuthMiddleware(cfg.JWTSecret), orderHandler.CreateOrder)
 
 	r.Run()
 }
