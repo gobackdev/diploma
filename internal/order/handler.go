@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type Handler struct {
@@ -72,6 +73,43 @@ func (h *Handler) CreateOrder(c *gin.Context) {
 
 	c.JSON(http.StatusAccepted, gin.H{"message": "order number accepted"})
 
+}
+
+func (h *Handler) GetOrders(c *gin.Context) {
+	userIDValue, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+	userID, ok := userIDValue.(uint)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	orders, err := h.repo.GetOrdersByUser(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "db error"})
+		return
+	}
+	if len(orders) == 0 {
+		c.Status(http.StatusNoContent)
+		return
+	}
+
+	result := make([]OrderResponse, 0, len(orders))
+	for _, o := range orders {
+		resp := OrderResponse{
+			Number:     o.OrderNumber,
+			Status:     o.Status,
+			UploadedAt: o.UploadedAt.Format(time.RFC3339),
+		}
+		if o.Status == "PROCESSED" && o.Accrual != nil {
+			resp.Accrual = o.Accrual
+		}
+		result = append(result, resp)
+	}
+	c.JSON(http.StatusOK, result)
 }
 
 // isAllDigits проверяем что номер заказа состоит только из цифр

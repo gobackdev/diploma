@@ -25,6 +25,7 @@ func main() {
 	r.POST("/api/user/register", userHandler.Register)
 	r.POST("/api/user/login", userHandler.Login)
 	r.POST("/api/user/orders", user.AuthMiddleware(cfg.JWTSecret), orderHandler.CreateOrder)
+	r.GET("/api/user/orders", user.AuthMiddleware(cfg.JWTSecret), orderHandler.GetOrders)
 
 	r.Run()
 }

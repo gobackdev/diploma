@@ -1,0 +1,4 @@
+ALTER TABLE orders
+    DROP COLUMN IF EXISTS status,
+    DROP COLUMN IF EXISTS accrual,
+    DROP COLUMN IF EXISTS uploaded_at;

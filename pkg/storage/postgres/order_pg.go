@@ -25,3 +25,12 @@ func (s *Postgres) CreateOrder(userID uint, orderNumber string) error {
 	}
 	return s.DB.Create(order).Error
 }
+
+func (s *Postgres) GetOrdersByUser(userID uint) ([]models.Order, error) {
+	var orders []models.Order
+	err := s.DB.
+		Where("user_id = ?", userID).
+		Order("uploaded_at DESC").
+		Find(&orders).Error
+	return orders, err
+}
