@@ -8,9 +8,10 @@ import (
 )
 
 type Config struct {
-	RunAddress  string
-	DatabaseDSN string
-	JWTSecret   string
+	RunAddress     string
+	AccrualAddress string
+	DatabaseDSN    string
+	JWTSecret      string
 }
 
 func Load() *Config {
@@ -18,10 +19,12 @@ func Load() *Config {
 
 	var (
 		addressFlag string
+		accrualFlag string
 		dsnFlag     string
 	)
 
-	flag.StringVar(&addressFlag, "a", "", "service run address, e.g., :8080 or 127.0.0.1:9000")
+	flag.StringVar(&addressFlag, "a", "", "Service run address")
+	flag.StringVar(&accrualFlag, "r", "", "Accrual service run address")
 	flag.StringVar(&dsnFlag, "d", "", "PostgreSQL DSN")
 	flag.Parse()
 
@@ -34,10 +37,20 @@ func Load() *Config {
 		address = ":8080"
 	}
 
+	accrualAddress := os.Getenv("ACCRUAL_SYSTEM_ADDRESS")
+	if accrualAddress == "" {
+		accrualAddress = accrualFlag
+	}
+
+	if accrualAddress == "" {
+		accrualAddress = ":8081"
+	}
+
 	dsn := os.Getenv("DATABASE_URI")
 	if dsn == "" {
 		dsn = dsnFlag
 	}
+
 	if dsn == "" {
 		log.Fatal("DATABASE_URI is not set")
 	}
