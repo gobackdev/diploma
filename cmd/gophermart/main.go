@@ -27,5 +27,5 @@ func main() {
 	r.POST("/api/user/orders", user.AuthMiddleware(cfg.JWTSecret), orderHandler.CreateOrder)
 	r.GET("/api/user/orders", user.AuthMiddleware(cfg.JWTSecret), orderHandler.GetOrders)
 
-	r.Run()
+	r.Run(cfg.RunAddress)
 }

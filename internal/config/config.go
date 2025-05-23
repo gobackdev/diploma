@@ -8,6 +8,7 @@ import (
 )
 
 type Config struct {
+	RunAddress  string
 	DatabaseDSN string
 	JWTSecret   string
 }
@@ -15,14 +16,25 @@ type Config struct {
 func Load() *Config {
 	_ = godotenv.Load()
 
-	var dsnFlag string
+	var (
+		addressFlag string
+		dsnFlag     string
+	)
+
+	flag.StringVar(&addressFlag, "a", "", "service run address, e.g., :8080 or 127.0.0.1:9000")
 	flag.StringVar(&dsnFlag, "d", "", "PostgreSQL DSN")
 	flag.Parse()
 
+	address := os.Getenv("RUN_ADDRESS")
+	if address == "" {
+		address = addressFlag
+	}
+
+	if address == "" {
+		address = ":8080"
+	}
+
 	dsn := os.Getenv("DATABASE_URI")
-
-	log.Printf("Connecting to DB at: %s", dsn)
-
 	if dsn == "" {
 		dsn = dsnFlag
 	}
@@ -36,6 +48,7 @@ func Load() *Config {
 	}
 
 	return &Config{
+		RunAddress:  address,
 		DatabaseDSN: dsn,
 		JWTSecret:   jwtSecret,
 	}
